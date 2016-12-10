@@ -2,7 +2,6 @@ require('./bin/string.js');
 var fs = require('fs'),
 	path = require('path'),
 	execSync = require('child_process').execSync;
-
 	
 /* configuration **************************************************************************/
 
@@ -166,7 +165,7 @@ for (var i = 0, l = fields.length; i < l; i += 1) {
 		fs.unlinkSync(targetFilePath);
 	}
 	fs.writeFileSync(targetFilePath, currentFileContent + ';');
-	console.log("Result file: '" + targetFilePath + "' readed back and saved separately.");
+	console.log("Result file: '" + path.resolve(targetFilePath) + "' readed back and saved separately.");
 };
 
 // remove temporary files:

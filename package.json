@@ -1,6 +1,6 @@
 {
   "name": "simpleform-custom-js",
-  "version": "0.0.9",
+  "version": "1.0.0",
   "keywords": [
     "SimpleForm javascripts - PHP forms library",
     "SimpleForm js - PHP forms library",
@@ -13,7 +13,7 @@
     "type": "git",
     "url": "https://github.com/mvccore/simpleform-js.git"
   },
-  "license": "Apache-2.0",
+  "license": "GPL-3.0",
   "author": {
     "name": "Tom Flídr",
     "email": "tomflidr@gmail.com",

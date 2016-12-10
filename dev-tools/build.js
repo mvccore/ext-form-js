@@ -12,8 +12,8 @@ var className = 'SimpleForm';
 var baseSourceFile = '../src/simple-form.js';
 var fieldsSourceDir = '../src/fields/';
 
-var baseTargetFile = '../../simple-form.js';
-var fieldsTargetDir = '../../fields/';
+var baseTargetFile = '../../../simple-form.js';
+var fieldsTargetDir = '../../../fields/';
 
 // for development:
 var advancedOptimizations = true;

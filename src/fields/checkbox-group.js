@@ -1,5 +1,5 @@
 SimpleForm['CheckboxGroup'] = function (name, required, minSelectedOptsCnt, maxSelectedOptsCnt, errorMsgMin, errorMsgMax, maxSlctdOptsClsName) {
-	this.sform = null;
+	this.base = null;
 	this['Name'] = name;
 	this._required = !!required;
 	this.minSelectedOptsCnt = minSelectedOptsCnt || 0;
@@ -30,13 +30,13 @@ SimpleForm['CheckboxGroup'].prototype = {
 				for (var i = 0, l = fieldCollections.length; i < l; i += 1) {
 					fieldCollection = fieldCollections[i];
 					for (var j = 0, k = fieldCollection.length; j < k; j += 1) {
-						fieldCollection[j].setCustomValidity('');
+						fieldCollection[j]['setCustomValidity']('');
 					}
 				}
 			}
 		},
-		initFormSubmitFocusAndMouseOverEvents: function (sform, formId, formSubmitElm) {
-			var scope = this, addEvent = sform.AddEvent;
+		initFormSubmitFocusAndMouseOverEvents: function (base, formId, formSubmitElm) {
+			var scope = this, addEvent = base.AddEvent;
 			if (formId in scope.formSubmitElms) return;
 			scope.formSubmitElms[formId] = true;
 			addEvent(formSubmitElm, 'mouseover', function (e) {
@@ -56,20 +56,20 @@ SimpleForm['CheckboxGroup'].prototype = {
 		};
 		self.initialized = true;
 	},
-	'Init': function (sform) {
-		var form = sform.Form;
-		this.sform = sform;
+	'Init': function (base) {
+		var form = base.Form;
+		this.base = base;
 		this.fieldCollection = form[this['Name']];
-		this._self.addFieldCollection(form.id, this.fieldCollection);
+		this._self.addFieldCollection(form['id'], this.fieldCollection);
 		this.initFormSubmitElm();
-		this._self.initFormSubmitFocusAndMouseOverEvents(sform, form.id, this.formSubmitElm);
+		this._self.initFormSubmitFocusAndMouseOverEvents(base, form['id'], this.formSubmitElm);
 		this.initAllFormCheckboxGroups();
 		this.initFieldCollectionChangeEvents();
 	},
 	initFormSubmitElm: function () {
 		var scope = this;
-		this.sform.Each(this.sform.Form, function (i, control) {
-			if (control.type == 'submit') {
+		this.base.Each(this.base.Form, function (i, control) {
+			if (control['type'] == 'submit') {
 				scope.formSubmitElm = control;
 				return false;
 			}
@@ -78,12 +78,13 @@ SimpleForm['CheckboxGroup'].prototype = {
 	initAllFormCheckboxGroups: function () {
 		var scope = this,
 			checkboxesCounts = {};
-		this.sform.Each(this.sform.Form, function (i, item) {
-			if (item.type == 'checkbox') {
-				if (typeof (checkboxesCounts[item.name]) == 'undefined') {
-					checkboxesCounts[item.name] = 0;
+		this.base.Each(this.base.Form, function (i, item) {
+			var itemName = item['name'];
+			if (item['type'] == 'checkbox') {
+				if (typeof (checkboxesCounts[itemName]) == 'undefined') {
+					checkboxesCounts[itemName] = 0;
 				}
-				checkboxesCounts[item.name] += 1;
+				checkboxesCounts[itemName] += 1;
 			}
 		});
 		for (var name in checkboxesCounts) {
@@ -94,10 +95,10 @@ SimpleForm['CheckboxGroup'].prototype = {
 	},
 	initFieldCollectionChangeEvents: function () {
 		var scope = this;
-		this.sform.Each(this.fieldCollection, function (i, field) {
-			var bubblesSupported = !!field.setCustomValidity;
-			if (field.checked) scope.selectionCount += 1;
-			scope.sform.AddEvent(field, 'change', function (e) {
+		this.base.Each(this.fieldCollection, function (i, field) {
+			var bubblesSupported = !!field['setCustomValidity'];
+			if (field['checked']) scope.selectionCount += 1;
+			scope.base.AddEvent(field, 'change', function (e) {
 				scope.fieldChangeHandler(e, i, field, bubblesSupported);
 			});
 		});
@@ -105,19 +106,19 @@ SimpleForm['CheckboxGroup'].prototype = {
 	fieldChangeHandler: function (e, i, control, bubblesSupported) {
 		this.result = undefined;
 		this.errorMsg = '';
-		this.selectionCount += control.checked ? 1 : -1;
+		this.selectionCount += control['checked'] ? 1 : -1;
 		this.fieldChangeHandlerManager(e, control);
 		if (bubblesSupported && this.errorMsg) {
-			control.setCustomValidity(this.errorMsg);
+			control['setCustomValidity'](this.errorMsg);
 		}
 		return this.result;
 	},
 	fieldChangeHandlerManager: function (e, control) {
 		var scope = this,
 			reqStr = 'required',
-			sform = scope.sform,
-			setAttr = sform.SetAttr,
-			removeAttr = sform.RemoveAttr;
+			base = scope.base,
+			setAttr = base.SetAttr,
+			removeAttr = base.RemoveAttr;
 		if (scope._required && scope.minSelectedOptsCnt === 0) {
 			// field is required
 			setAttr(scope.fieldCollection[0], reqStr, reqStr);
@@ -133,45 +134,45 @@ SimpleForm['CheckboxGroup'].prototype = {
 			scope.fieldChangeHandlerOverMaxmimum(e, control, reqStr);
 		} else {
 			scope.addOrRemoveMaxSelectedOptsClass(false);
-			scope.sform.Each(scope.fieldCollection, function (i, field) {
+			scope.base.Each(scope.fieldCollection, function (i, field) {
 				removeAttr(field, reqStr);
 			});
 		}
 	},
 	fieldChangeHandlerOverMaxmimum: function (e, control, reqStr) {
 		var scope = this,
-			sform = scope.sform,
-			setAttr = sform.SetAttr,
-			removeAttr = sform.RemoveAttr;
+			base = scope.base,
+			setAttr = base.SetAttr,
+			removeAttr = base.RemoveAttr;
 		scope.addOrRemoveMaxSelectedOptsClass(true);
 		scope.errorMsg = scope.errorMsgMax;
 		setAttr(control, reqStr, reqStr);
-		control.checked = false;
+		control['checked'] = false;
 		scope.selectionCount -= 1;
-		scope._self.clearCustomValidityForAllFormCheckboxGroups(sform.Form.id);
+		scope._self.clearCustomValidityForAllFormCheckboxGroups(base.Form['id']);
 
-		scope.formSubmitElm.click();
+		scope.formSubmitElm['click']();
 		setTimeout(function () {
-			scope.sform.Each(scope.fieldCollection, function (i, item) {
+			scope.base.Each(scope.fieldCollection, function (i, item) {
 				removeAttr(item, reqStr);
 			});
 		}, 1);
 
-		e.preventDefault();
+		e['preventDefault']();
 		scope.result = false;
 	},
 	addOrRemoveMaxSelectedOptsClass: function (addCls) {
 		var scope = this,
-			sform = scope.sform,
+			base = scope.base,
 			clsName = scope.maxSlctdOptsClsName;
-		scope.sform.Each(scope.fieldCollection, function (i, field) {
-			if (field.checked) return;
-			var parentNode = field.parentNode,
-				hasCls = sform.HasCls(parentNode, clsName);
+		scope.base.Each(scope.fieldCollection, function (i, field) {
+			if (field['checked']) return;
+			var parentNode = field['parentNode'],
+				hasCls = base.HasCls(parentNode, clsName);
 			if (addCls && !hasCls) {
-				sform.AddCls(parentNode, clsName);
+				base.AddCls(parentNode, clsName);
 			} else if (!addCls && hasCls) {
-				sform.RemoveCls(parentNode, clsName);
+				base.RemoveCls(parentNode, clsName);
 			}
 		});
 	}/*,

@@ -1,10 +1,10 @@
 SimpleForm = function (form, fields) {
 	this.Form = form;
 	this.fields = fields || [];
-	SimpleForm.instances[form.id] = this;
+	SimpleForm.instances[form['id']] = this;
 	this.init();
 };
-SimpleForm.OLDIE = /MSIE [6-8]/g.test(navigator.userAgent);
+SimpleForm.OLDIE = /MSIE [6-8]/g.test(navigator['userAgent']);
 SimpleForm.instances = {};
 SimpleForm['GetInstance'] = function (formId) {
 	return SimpleForm.instances[formId];
@@ -17,11 +17,11 @@ SimpleForm.prototype = {
 			if (!('Init' in field)) return;
 			try {
 				field['Init'](scope);
-			} catch (e) {
+			} catch (_x) {
 				if (console) {
-					console.log(e, е.stack)
+					console.log(_x, _x['stack'])
 				} else {
-					alert(e.message)
+					alert(_x['message'])
 				}
 			}
 		});
@@ -36,7 +36,7 @@ SimpleForm.prototype = {
 			scope.onSubmit(e);
 		});*/
 		this.Form.onsubmit = function (e) {
-			scope.onSubmit(e || window.event);
+			scope.onSubmit(e || window['event']);
 		};
 	},
 	onSubmit: function (e) {
@@ -46,31 +46,31 @@ SimpleForm.prototype = {
 		this.Each(this.fields, function (i, field) {
 			var fieldName = field.name,
 				fieldResult = [],
-				fieldValue = typeof (form[fieldName]) != 'undefined' ? form[fieldName].value : '';
+				fieldValue = typeof(form[fieldName]) != 'undefined' ? form[fieldName]['value'] : '';
 			if (!('Validate' in field)) return;
 			try {
 				fieldResult = field['Validate'](fieldValue);
 			} catch (e) {
-				fieldResult = [e.message];
+				fieldResult = [e['message']];
 			}
-			if (fieldResult.length > 0) {
+			if (fieldResult['length'] > 0) {
 				result = false;
-				errors.push(fieldResult.join(String.fromCharCode(10)));
+				errors['push'](fieldResult['join'](String['fromCharCode'](10)));
 			}
 		});
 		if (!result) {
-			alert(errors.join(String.fromCharCode(10)));
-			e.preventDefault();
+			alert(errors['join'](String['fromCharCode'](10)));
+			e['preventDefault']();
 			return false;
 		}
 	},
 	AddEvent: function (elm, evnt, fn, capture) {
 		var hndlr = function (e) {
-			e = e || window.event;
+			e = e || window['event'];
 			var defaultPrevented = false,
 				result = undefined;
-			if (!e.preventDefault) {
-				e.preventDefault = function () {
+			if (!e['preventDefault']) {
+				e['preventDefault'] = function () {
 					defaultPrevented = true;
 				}
 			}
@@ -86,36 +86,40 @@ SimpleForm.prototype = {
 		}
 	},
 	CreateElm: function (elm) {
-		return document.createElement(elm);
+		return document['createElement'](elm);
 	},
 	Append: function (parent, child) {
 		if (this.OldIe) {
-			return parent.insertAdjacentElement('beforeEnd', child);
+			return parent['insertAdjacentElement']('beforeEnd', child);
 		} else {
-			return parent.appendChild(child);
+			return parent['appendChild'](child);
 		}
 	},
 	HasCls: function (elm, cls) {
-		return String(' '+elm.className+' ').indexOf(cls) > -1;
+		return String(' '+elm['className']+' ').indexOf(cls) > -1;
 	},
 	AddCls: function (elm, cls) {
-		elm.className += ' ' + cls;
+		elm['className'] += ' ' + cls;
 	},
 	RemoveCls: function (elm, cls) {
-		elm.className = String(' ' + elm.className + ' ')
-			.replace(' ' + cls + ' ', ' ')
-			.replace(/\s+/g, ' ');
+		var clsWithSpaces = ' ' + cls + ' ',
+			regExp = new RegExp(clsWithSpaces, 'g'),
+			resultCls = String(' ' + elm['className'] + ' ');
+		while (resultCls.indexOf(clsWithSpaces) > -1) {
+			resultCls = resultCls.replace(regExp, ' ');
+		};
+		elm['className'] = resultCls.replace(/\s+/g, ' ');
 	},
 	GetAttr: function (elm, attr) {
-		return elm.getAttribute(attr);
+		return elm['getAttribute'](attr);
 	},
 	SetAttr: function (elm, attr, value) {
-		return elm.setAttribute(attr, value);
+		return elm['setAttribute'](attr, value);
 	},
 	RemoveAttr: function (elm, attr) {
-		return elm.removeAttribute(attr);
+		return elm['removeAttribute'](attr);
 	},
 	Each: function (items, fn) {
-		for (var i = 0, l = items.length; i < l; i += 1) if (fn(i, items[i], items) === false) break;
+		for (var i = 0, l = items['length']; i < l; i += 1) if (fn(i, items[i], items) === false) break;
 	}
 };

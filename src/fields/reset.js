@@ -1,13 +1,13 @@
 SimpleForm['Reset'] = function (name) {
-	this.sform = null;
+	this.base = null;
 	this['Name'] = name;
 };
 SimpleForm['Reset'].prototype = {
-	Init: function (sform) {
+	Init: function (base) {
 		var scope = this;
-		scope.sform = sform;
-		this.sform.AddEvent(
-			this.sform.Form[this['Name']], 
+		scope.base = base;
+		this.base.AddEvent(
+			this.base.Form[this['Name']],
 			'click', 
 			function (e) {
 				scope.initHandler(e);
@@ -17,20 +17,21 @@ SimpleForm['Reset'].prototype = {
 	initHandler: function (e) {
 		var field = {},
 			typesAndActions = {
-				submit: 0,
-				button: 0,
-				reset: 1,
-				radio: 1,
-				checkbox: 1
+				'submit': 0,
+				'button': 0,
+				'reset': 1,
+				'radio': 1,
+				'checkbox': 1
 			};
-		this.sform.Each(form, function (i, field) {
-			if (typeof (field.type) == 'string' && typeof (typesAndActions[field.type]) == 'number') {
-				if (!typesAndActions[field.type] == 1) return;
-				field.checked = false;
+		this.base.Each(this.base.Form, function (i, field) {
+			var ft = field['type'];
+			if (typeof (ft) == 'string' && typeof (typesAndActions[ft]) == 'number') {
+				if (!typesAndActions[ft] == 1) return;
+				field['checked'] = false;
 			} else {
-				field.value = '';
+				field['value'] = '';
 			}
 		});
-		e.preventDefault();
+		e['preventDefault']();
 	}
 }

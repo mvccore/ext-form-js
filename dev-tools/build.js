@@ -58,7 +58,7 @@ for (var i = 0, l = fieldDefsFileNames.length; i < l; i += 1) {
 	for (var j = 0, k = fileContentLines.length; j < k; j += 1) {
 		fileContentLine = fileContentLines[j];
 		matches = fileContentLine.match(matchFieldDefRegExp);
-		if (matches.length) {
+		if (matches && matches.length) {
 			fieldDefClassName = fileContentLine.replace(matchFieldDefRegExp, '$2');
 			fields.push({
 				filePath: fieldsTargetDir + fieldDefFileName, 
@@ -68,13 +68,18 @@ for (var i = 0, l = fieldDefsFileNames.length; i < l; i += 1) {
 			break;
 		}
 	}
+	if (!matches || (matches && !matches.length)) {
+		console.error("ERROR: No substring detected in file: '" + fieldDefFileName + "' matches following criteria in any line:");
+		console.error("SimpleForm['YourFieldName'] = function () {....}");
+		console.error(matchFieldDefRegExp);
+	}
 	content += ";\n" + fileContent;
 }
 
 // store everything in temporary file 'tmp.src.js'
 if (fs.existsSync(tmpSrcFile)) fs.unlinkSync(tmpSrcFile);
 fs.writeFileSync(tmpSrcFile, content);
-console.log("All source files completed into single big source.");
+console.log("Source files completed into single big source.");
 
 // compile tmp source file into tmp minified file 'tmp.min.js':
 var currentDir = __dirname.replace(/\\/g, '/') + '/';

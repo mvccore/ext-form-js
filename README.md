@@ -1,4 +1,4 @@
-# simpleform-js
+# SimpleForm - Custom Javascript Support Classes
 Node builder to compile custom javascripts for PHP SimpleForm library (mvccore/simpleform), which serves web forms and much more.
 
 Custom javascripts are compiled by Google Closure Compiller.

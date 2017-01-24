@@ -53,6 +53,7 @@ Temporary Items
 # mercurial
 .hg
 .hgignore
+.hgtags
 
 # install third party node modules
 node_modules

@@ -1,4 +1,9 @@
-# simpleform-js
+# MvcCore - SimpleForm - Custom Javascripts
+
+[![Latest Stable Version](https://img.shields.io/badge/Stable-v3.2.0-brightgreen.svg?style=plastic)](https://github.com/mvccore/simpleform/releases)
+[![License](https://img.shields.io/badge/Licence-BSD-brightgreen.svg?style=plastic)](https://mvccore.github.io/docs/simpleform/3.0.0/LICENCE.md)
+[![Google Closure Build](https://img.shields.io/badge/Google%20Closure%20Build-passing-brightgreen.svg?style=plastic)](https://developers.google.com/closure/compiler/)
+
 Node builder to compile custom javascripts for PHP SimpleForm library (mvccore/simpleform), which serves web forms and much more.
 
 Custom javascripts are compiled by Google Closure Compiller.

@@ -1,8 +1,8 @@
-SimpleForm['Range'] = function (name) {
+MvcCoreForm['Range'] = function (name) {
 	this.base = null;
 	this['Name'] = name;
 };
-SimpleForm['Range'].prototype = {
+MvcCoreForm['Range'].prototype = {
 	infoTmpl: '% - %',
 	field: null,
 	contElm: null,

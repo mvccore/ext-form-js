@@ -1,17 +1,17 @@
 {
-  "name": "simpleform-custom-js",
-  "version": "1.0.0",
+  "name": "mvccore-ext-form-js",
+  "version": "4.0.0",
   "keywords": [
-    "SimpleForm javascripts - PHP forms library",
-    "SimpleForm js - PHP forms library",
-    "SimpleForm javascript",
-    "SimpleForm js"
+    "MvcCore Form javascripts - PHP forms library",
+    "MvcCore Form js - PHP forms library",
+    "MvcCore Form javascripts",
+    "MvcCore Form JS"
   ],
-  "description": "Create custom handling javascripts for any build-in or custom control in PHP forms library SimpleForm.",
-  "homepage": "https://github.com/mvccore/simpleform-js",
+  "description": "Create custom handling javascripts for any build-in or custom control in PHP forms library MvcCore Form extension.",
+  "homepage": "https://github.com/mvccore/ext-form-js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mvccore/simpleform-js.git"
+    "url": "https://github.com/mvccore/ext-form-js.git"
   },
   "license": "BSD-3-Clause",
   "author": {
@@ -19,7 +19,7 @@
     "email": "tomflidr@gmail.com",
     "url": "https://github.com/tomFlidr"
   },
-  "main": "src/simple-form",
+  "main": "src/mvccore-form",
   "scripts": {
     "install": "node install.js"
   },

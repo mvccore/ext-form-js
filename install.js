@@ -7,8 +7,8 @@
 	
 console.log(
 	"\n\n" + 
-	'PHP SimpleForm - custom javascripts builder' + "\n" + 
-	'==========================================='
+	'PHP MvcCore Form extension - custom javascripts builder' + "\n" + 
+	'======================================================='
 );
 
 const fs = require('fs');

@@ -1,16 +1,16 @@
-SimpleForm = function (form, fields) {
+MvcCoreForm = function (form, fields) {
 	this.Form = form;
 	this.fields = fields || [];
-	SimpleForm.instances[form['id']] = this;
+	MvcCoreForm.instances[form['id']] = this;
 	this.init();
 };
-SimpleForm.OLDIE = /MSIE [6-8]/g.test(navigator['userAgent']);
-SimpleForm.instances = {};
-SimpleForm['GetInstance'] = function (formId) {
-	return SimpleForm.instances[formId];
+MvcCoreForm.OLDIE = /MSIE [6-8]/g.test(navigator['userAgent']);
+MvcCoreForm.instances = {};
+MvcCoreForm['GetInstance'] = function (formId) {
+	return MvcCoreForm.instances[formId];
 };
-SimpleForm.prototype = {
-	OldIe: SimpleForm.OLDIE,
+MvcCoreForm.prototype = {
+	OldIe: MvcCoreForm.OLDIE,
 	init: function () {
 		var scope = this;
 		this.Each(this.fields, function (i, field) {
@@ -122,4 +122,4 @@ SimpleForm.prototype = {
 	Each: function (items, fn) {
 		for (var i = 0, l = items['length']; i < l; i += 1) if (fn(i, items[i], items) === false) break;
 	}
-};
+}

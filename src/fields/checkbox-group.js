@@ -1,4 +1,4 @@
-SimpleForm['CheckboxGroup'] = function (name, required, minSelectedOptsCnt, maxSelectedOptsCnt, errorMsgMin, errorMsgMax, maxSlctdOptsClsName) {
+MvcCoreForm['CheckboxGroup'] = function (name, required, minSelectedOptsCnt, maxSelectedOptsCnt, errorMsgMin, errorMsgMax, maxSlctdOptsClsName) {
 	this.base = null;
 	this['Name'] = name;
 	this._required = !!required;
@@ -9,7 +9,7 @@ SimpleForm['CheckboxGroup'] = function (name, required, minSelectedOptsCnt, maxS
 	this.maxSlctdOptsClsName = maxSlctdOptsClsName || 'max-selected-options';
 	this.initStaticsIfNecessary();
 };
-SimpleForm['CheckboxGroup'].prototype = {
+MvcCoreForm['CheckboxGroup'].prototype = {
 	fieldCollection: [],
 	formSubmitElm: null,
 	checkboxesGroupNames: [],
@@ -48,7 +48,7 @@ SimpleForm['CheckboxGroup'].prototype = {
 		}
 	},
 	initStaticsIfNecessary: function () {
-		var self = SimpleForm['CheckboxGroup'];
+		var self = MvcCoreForm['CheckboxGroup'];
 		this._self = self;
 		if (typeof (self.initialized) == 'boolean' && self.initialized) return;
 		for (var key in this.statics) {
@@ -187,4 +187,4 @@ SimpleForm['CheckboxGroup'].prototype = {
 			return elm.fireEvent("on" + event.eventType, event);
 		}
 	}*/
-};
+}

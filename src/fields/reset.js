@@ -1,8 +1,8 @@
-SimpleForm['Reset'] = function (name) {
+MvcCoreForm['Reset'] = function (name) {
 	this.base = null;
 	this['Name'] = name;
 };
-SimpleForm['Reset'].prototype = {
+MvcCoreForm['Reset'].prototype = {
 	Init: function (base) {
 		var scope = this;
 		scope.base = base;

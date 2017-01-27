@@ -6,12 +6,12 @@ var fs = require('fs'),
 /* configuration **************************************************************************/
 
 
-// base SimpleForm javascript object name, it's filename and filed definitions directory
-var className = 'SimpleForm';
-var baseSourceFile = '../src/simple-form.js';
+// base MvcCoreForm javascript object name, it's filename and filed definitions directory
+var className = 'MvcCoreForm';
+var baseSourceFile = '../src/mvccore-form.js';
 var fieldsSourceDir = '../src/fields/';
 
-var baseTargetFile = '../../../simple-form.js';
+var baseTargetFile = '../../../mvccore-form.js';
 var fieldsTargetDir = '../../../fields/';
 
 // for development:
@@ -35,12 +35,12 @@ var tmpMinFile = 'tmp.min.js';
 /******************************************************************************************/
 
 
-// load base SimpleForm object definition:
+// load base MvcCoreForm object definition:
 var fileContent = fs.readFileSync(baseSourceFile, 'utf8');
 var content = fileContent.trim("\n\r\t;");
 var isWin = process.platform.toLowerCase().indexOf('win') > -1;
 
-// load all SimpleForm fields definitions:
+// load all MvcCoreForm fields definitions:
 var fieldDefsFileNames = fs.readdirSync(fieldsSourceDir);
 var fieldDefFileName = '';
 var fileContentLines = [];
@@ -70,7 +70,7 @@ for (var i = 0, l = fieldDefsFileNames.length; i < l; i += 1) {
 	}
 	if (!matches || (matches && !matches.length)) {
 		console.error("ERROR: No substring detected in file: '" + fieldDefFileName + "' matches following criteria in any line:");
-		console.error("SimpleForm['YourFieldName'] = function () {....}");
+		console.error("MvcCoreForm['YourFieldName'] = function () {....}");
 		console.error(matchFieldDefRegExp);
 	}
 	content += ";\n" + fileContent;

@@ -33,5 +33,5 @@ build.cmd
 ### Mac/Linux
 ```shell
 cd node_modules/ext-form-js/dev-tools
-build.sh
+sh build.sh
 ```

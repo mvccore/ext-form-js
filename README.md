@@ -30,7 +30,7 @@ cd node_modules/ext-form-js/dev-tools
 build.cmd
 ```
 
-### Max/Linux
+### Mac/Linux
 ```shell
 cd node_modules/ext-form-js/dev-tools
 build.sh

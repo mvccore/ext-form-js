@@ -1,6 +1,6 @@
 {
   "name": "ext-form-js",
-  "version": "4.2.0",
+  "version": "5.0.0-alpha",
   "keywords": [
     "MvcCore Form javascripts - PHP forms library",
     "MvcCore Form js - PHP forms library",
@@ -24,8 +24,6 @@
     "install": "node install.js"
   },
   "dependencies": {
-    "download": "~5.0.0",
-    "find-java-home": "~0.1.4"
   },
   "devDependencies": {
     "download": "~5.0.0",

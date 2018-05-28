@@ -11,8 +11,8 @@ var className = 'MvcCoreForm';
 var baseSourceFile = '../src/mvccore-form.js';
 var fieldsSourceDir = '../src/fields/';
 
-var baseTargetFile = '../../../mvccore-form.js';
-var fieldsTargetDir = '../../../fields/';
+var baseTargetFile = '../../ext-form/src/MvcCore/Ext/Forms/assets/mvccore-form.js';
+var fieldsTargetDir = '../../ext-form/src/MvcCore/Ext/Forms/assets/fields/';
 
 // for development:
 var advancedOptimizations = true;
@@ -34,17 +34,19 @@ var tmpMinFile = 'tmp.min.js';
 
 /******************************************************************************************/
 
+//var content = '(function(){';
+var content = '';
 
 // load base MvcCoreForm object definition:
 var fileContent = fs.readFileSync(baseSourceFile, 'utf8');
-var content = fileContent.trim("\n\r\t;");
+content += fileContent.trim("\n\r\t;");
 var isWin = process.platform.toLowerCase().indexOf('win') > -1;
 
 // load all MvcCoreForm fields definitions:
 var fieldDefsFileNames = fs.readdirSync(fieldsSourceDir);
 var fieldDefFileName = '';
 var fileContentLines = [];
-var matchFieldDefRegExp = new RegExp("^" + className + "(\\[')+([^']*)+('\\])+([\\s=]*)+(.*)", 'g');
+var matchFieldDefRegExp = new RegExp("^(\\s*)" + className + "(\\[')+([^']*)+('\\])+([\\s=]*)+(.*)", 'g');
 var fileContentLine = '';
 var matches = [];
 var fields = [];
@@ -59,7 +61,7 @@ for (var i = 0, l = fieldDefsFileNames.length; i < l; i += 1) {
 		fileContentLine = fileContentLines[j];
 		matches = fileContentLine.match(matchFieldDefRegExp);
 		if (matches && matches.length) {
-			fieldDefClassName = fileContentLine.replace(matchFieldDefRegExp, '$2');
+			fieldDefClassName = fileContentLine.replace(matchFieldDefRegExp, '$3');
 			fields.push({
 				filePath: fieldsTargetDir + fieldDefFileName, 
 				className: fieldDefClassName,
@@ -76,6 +78,8 @@ for (var i = 0, l = fieldDefsFileNames.length; i < l; i += 1) {
 	content += ";\n" + fileContent;
 }
 
+//content += ";\nreturn MvcCoreForm;})();";
+
 // store everything in temporary file 'tmp.src.js'
 if (fs.existsSync(tmpSrcFile)) fs.unlinkSync(tmpSrcFile);
 fs.writeFileSync(tmpSrcFile, content);
@@ -83,7 +87,7 @@ console.log("Source files completed into single big source.");
 
 // compile tmp source file into tmp minified file 'tmp.min.js':
 var currentDir = __dirname.replace(/\\/g, '/') + '/';
-var cmd = "cd \"%javaPath%\"\njava -jar bin/compiler/compiler.jar --compilation_level %optimalizationMode% --env BROWSER --formatting PRETTY_PRINT --js \"%inputFile%\" --hide_warnings_for \"%inputFile%\" --js_output_file \"%outputFile%\" --output_wrapper \"var %output%\"";
+var cmd = "cd \"%javaPath%\"\njava -jar bin/compiler/compiler.jar --compilation_level %optimalizationMode% --env BROWSER --formatting PRETTY_PRINT --js \"%inputFile%\" --hide_warnings_for \"%inputFile%\" --js_output_file \"%outputFile%\" --output_wrapper \"%output%\"";
 cmd = cmd
 	.replace(/%optimalizationMode%/g, advancedOptimizations ? 'ADVANCED_OPTIMIZATIONS' : 'SIMPLE_OPTIMIZATIONS')
 	.replace(/%inputFile%/g, currentDir + tmpSrcFile)
@@ -130,15 +134,39 @@ var fileContent = fs.readFileSync(tmpMinFile, 'utf8');
 var fieldDefFullClassName = '';
 var field = {};
 var index = 0;
-for (var i = 0, l = fields.length; i < l; i += 1) {
-	field = fields[i];
-	fieldDefFullClassName = className + '.' + field.className;
-	index = fileContent.indexOf(fieldDefFullClassName + '=');
-	if (index == -1) index = fileContent.indexOf(
-		fieldDefFullClassName + ' ='
-	);
-	field.index = index;
+var regExpFieldBegin = new RegExp('\\(function\\(([a-zA-Z0-9_]+)\\)([\\s]*)\\{');
+var matchingFieldContent = '';
+var fieldBeginMatch = [];
+var fieldCounter = 0;
+var wholeMatchedBeginStr = '';
+var minimalizedMvcCoreFormVarStr = '';
+var regExpFieldClassBegin = null;
+var fieldClassBeginMatches = [];
+while (true) {
+	matchingFieldContent = fileContent.substr(index);
+	fieldBeginMatch = matchingFieldContent.match(regExpFieldBegin);
+	if (fieldBeginMatch && fieldBeginMatch.length) {
+		wholeMatchedBeginStr = fieldBeginMatch[0];
+		minimalizedMvcCoreFormVarStr = fieldBeginMatch[1];
+		field = fields[fieldCounter];
+		matchingFieldContent = matchingFieldContent.substr(
+			fieldBeginMatch.index + wholeMatchedBeginStr.length, 
+			field.className.length + minimalizedMvcCoreFormVarStr.length + 20
+		).trim("\r\n\t ");
+		regExpFieldClassBegin = new RegExp(minimalizedMvcCoreFormVarStr + '\\.' + field.className + '([\\s]*)=([\\s]*)function\\(');
+		fieldClassBeginMatches = matchingFieldContent.match(regExpFieldClassBegin);
+		if (fieldClassBeginMatches && fieldClassBeginMatches.length && fieldClassBeginMatches.index === 0) {
+			field.index = index + fieldBeginMatch.index;
+			index += fieldBeginMatch.index + wholeMatchedBeginStr.length;
+			fieldCounter++;
+		}
+	} else {
+		break;
+	}
 };
+if (fieldCounter !== fields.length) {
+	throw new Error("Not possible to parse minimalized file. Not all fields found and parsed. Close whole field code into: `(function(MvcCoreForm){ ... })(window['MvcCoreForm']);`.");
+}
 // - create target dir if not exists
 var fieldsTargetDirStats = null;
 try {
@@ -162,9 +190,11 @@ var nextIndex = 0;
 var targetFilePath = '';
 for (var i = 0, l = fields.length; i < l; i += 1) {
 	field = fields[i];
-	nextIndex = (typeof(fields[i + 1]) != 'undefined') ? fields[i + 1].index : fileContent.length;
+	nextIndex = (typeof(fields[i + 1]) != 'undefined') 
+		? fields[i + 1].index 
+		: fileContent.length;
 	currentFileContent = fileContent.substr(field.index, nextIndex - field.index);
-	currentFileContent = currentFileContent.trim(";");
+	currentFileContent = currentFileContent.trim("\r\n\t ;");
 	targetFilePath = field.filePath;
 	if (fs.existsSync(targetFilePath)) {
 		fs.unlinkSync(targetFilePath);

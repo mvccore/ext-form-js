@@ -65,3 +65,6 @@ dev-tools/bin/compile.cmd
 dev-tools/bin/compile.sh
 dev-tools/bin/tmp.src.js
 dev-tools/bin/tmp.min.js
+
+*.phpproj
+*.phpproj.user

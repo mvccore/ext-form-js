@@ -19,49 +19,47 @@
 		},
 		initCreateAndSetUpNewElements: function () {
 			var scope = this,
-				contElm, firstElm, secondElm, infoElm,
 				field = scope.field,
 				base = scope.base,
-				append = base.Append,
-				createElm = base.CreateElm,
-				addCls = base.AddCls,
-				getAttr = base.GetAttr,
-				setAttr = base.SetAttr,
-				removeAttr = base.RemoveAttr,
+				_append = base.Append,
+				_createElm = base.CreateElm,
+				_addCls = base.AddCls,
+				_getAttr = base.GetAttr,
+				_setAttr = base.SetAttr,
+				_removeAttr = base.RemoveAttr,
 				name = '',
-				values = [],
-				rawValues = getAttr(field, 'data-value'),
-				step = parseFloat(getAttr(field, 'step') || '0.1') || 0.1;
+				values = [];
 
-			contElm = createElm('div');
-			infoElm = createElm('span');
-			firstElm = field['cloneNode']();
-			addCls(field, 'range-multiple');
+			var contElm = _createElm('div');
+			var infoElm = _createElm('span');
+			var firstElm = field['cloneNode']();
+			_addCls(field, 'range-multiple');
+			var rawValues = _getAttr(field, 'data-value');
 			if (rawValues['length']) {
 				values = rawValues['split'](',');
 			} else {
 				values = [
-					getAttr(field, 'min') || '0',
-					getAttr(field, 'max') || '100'
+					_getAttr(field, 'min') || '0',
+					_getAttr(field, 'max') || '100'
 				];
 			};
 
-			removeAttr(firstElm, 'multiple');
-			removeAttr(firstElm, 'id');
-			setAttr(firstElm, 'value', values[0]);
+			_removeAttr(firstElm, 'multiple');
+			_removeAttr(firstElm, 'id');
+			_setAttr(firstElm, 'value', values[0]);
 			
 			name = firstElm['name'];
 			firstElm['name'] = name.indexOf('[]') > -1 ? name : name + '[]';
-			secondElm = firstElm['cloneNode']();
-			setAttr(secondElm, 'value', values[1]);
-			addCls(firstElm, 'first');
-			addCls(secondElm, 'second');
-			setAttr(contElm, 'id', field['id']);
+			var secondElm = firstElm['cloneNode']();
+			_setAttr(secondElm, 'value', values[1]);
+			_addCls(firstElm, 'first');
+			_addCls(secondElm, 'second');
+			_setAttr(contElm, 'id', field['id']);
 			contElm['className'] = field['className'];
 
-			infoElm = append(contElm, infoElm);
-			firstElm = append(contElm, firstElm);
-			secondElm = append(contElm, secondElm);
+			infoElm = _append(contElm, infoElm);
+			firstElm = _append(contElm, firstElm);
+			secondElm = _append(contElm, secondElm);
 			contElm = field['parentNode']['replaceChild'](contElm, field);
 
 			scope.firstElm = firstElm;
@@ -87,10 +85,15 @@
 		initChangeEvents: function () {
 			var scope = this,
 				first = scope.firstElm,
-				second = scope.secondElm;
+				second = scope.secondElm,
+				int = scope._parseInt,
+				step = scope.getInputStep,
+				firstStep = step(first),
+				secondStep = step(second);
 			scope.addChangeEvent(first, function (e) {
-				var cnt = 0;
-				while (first['value'] + 1 > second['value']) {
+				var cnt = 0,
+					firstValPlusStep = int(first['value']) + firstStep;
+				while (firstValPlusStep > int(second['value'])) {
 					second.stepUp();
 					cnt += 1;
 					if (cnt > 100) break;
@@ -98,8 +101,9 @@
 				scope.setUpInfo();
 			});
 			scope.addChangeEvent(second, function (e) {
-				var cnt = 0;
-				while (second['value'] - 1 < first['value']) {
+				var cnt = 0,
+					secondValMinusStep = int(second['value']) - secondStep;
+				while (secondValMinusStep < int(first['value'])) {
 					first.stepDown();
 					cnt += 1;
 					if (cnt > 100) break;
@@ -116,6 +120,30 @@
 			scope.infoElm['innerHTML'] = scope.infoTmpl
 				.replace('%', scope.firstElm['value'])
 				.replace('%', scope.secondElm['value']);
+		},
+		_parseInt: function (value) {
+			return parseInt(value, 10);
+		},
+		getInputStep: function (input) {
+			var rawStep = input['step'].toString(),
+				rawValue = '',
+				dotPos = -1,
+				result = 1;
+			if (rawStep['length'] > 0) {
+				result = parseInt(rawStep, 10);
+			} else {
+				rawValue = input['value'].toString();
+				if (rawValue['length'] > 0) {
+					dotPos = rawValue.lastIndexOf('.');
+					if (dotPos > -1) {
+						rawValue = rawValue.substr(dotPos + 1);
+						if (rawValue['length'] > 0) {
+							result = parseInt(rawValue, 10) / 10;
+						}
+					}
+				}
+			}
+			return result;
 		}
 	}
 })(window['MvcCoreForm']);

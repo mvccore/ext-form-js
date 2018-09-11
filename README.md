@@ -10,7 +10,7 @@ Custom javascripts are compiled by Google Closure Compiller.
 
 ## Instalation
 ```shell
-npm install mvccore/ext-form-js
+npm install mvccore-ext-form-js
 ```
 
 ## Excending and custom javascript development

@@ -28,6 +28,7 @@
 				getAttr = base.GetAttr,
 				setAttr = base.SetAttr,
 				removeAttr = base.RemoveAttr,
+				name = '',
 				values = [],
 				rawValues = getAttr(field, 'data-value'),
 				step = parseFloat(getAttr(field, 'step') || '0.1') || 0.1;
@@ -48,7 +49,9 @@
 			removeAttr(firstElm, 'multiple');
 			removeAttr(firstElm, 'id');
 			setAttr(firstElm, 'value', values[0]);
-			firstElm['name'] = firstElm['name'] + '[]';
+			
+			name = firstElm['name'];
+			firstElm['name'] = name.indexOf('[]') > -1 ? name : name + '[]';
 			secondElm = firstElm['cloneNode']();
 			setAttr(secondElm, 'value', values[1]);
 			addCls(firstElm, 'first');

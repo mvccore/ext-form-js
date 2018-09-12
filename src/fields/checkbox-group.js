@@ -4,6 +4,7 @@
 		required,
 		minSelectedOptsCnt,
 		maxSelectedOptsCnt,
+		errorMsgRequired,
 		errorMsgMin,
 		errorMsgMax,
 		maxSlctdOptsClsName
@@ -13,6 +14,7 @@
 		this._required = !!required;
 		this.minSelectedOptsCnt = minSelectedOptsCnt || 0;
 		this.maxSelectedOptsCnt = maxSelectedOptsCnt || 0;
+		this.errorMsgRequired = errorMsgRequired || '';
 		this.errorMsgMin = errorMsgMin || '';
 		this.errorMsgMax = errorMsgMax || '';
 		this.maxSlctdOptsClsName = maxSlctdOptsClsName || 'max-selected-options';
@@ -20,24 +22,26 @@
 	};
 	MvcCoreForm['CheckboxGroup'].prototype = {
 		fieldCollection: [],
-		formSubmitElm: null,
+		formSubmitElms: [],
 		checkboxesGroupNames: [],
 		selectionCount: 0,
 		result: undefined,
 		errorMsg: '',
 		statics: {
-			fieldCollections: {},
-			formSubmitElms: {},
-			addFieldCollection: function (formId, fieldCollection) {
-				if (!(formId in this.fieldCollections)) this.fieldCollections[formId] = [];
-				this.fieldCollections[formId].push(fieldCollection);
+			fieldGroupScopes: {},
+			formSubmitElmsInitialized: {},
+			addFieldGroup: function (formId, fieldGroupScope) {
+				if (!(formId in this.fieldGroupScopes)) 
+					this.fieldGroupScopes[formId] = [];
+				this.fieldGroupScopes[formId].push(fieldGroupScope);
 			},
 			clearCustomValidityForAllFormCheckboxGroups: function (formId) {
-				var fieldCollections = [], fieldCollection = [];
-				if (formId in this.fieldCollections) {
-					fieldCollections = this.fieldCollections[formId];
-					for (var i = 0, l = fieldCollections.length; i < l; i += 1) {
-						fieldCollection = fieldCollections[i];
+				var fieldGroupScopes = [], 
+					fieldCollection = [];
+				if (formId in this.fieldGroupScopes) {
+					fieldGroupScopes = this.fieldGroupScopes[formId];
+					for (var i = 0, l = fieldGroupScopes.length; i < l; i += 1) {
+						fieldCollection = fieldGroupScopes[i].fieldCollection;
 						for (var j = 0, k = fieldCollection.length; j < k; j += 1) {
 							fieldCollection[j]['setCustomValidity']('');
 						}
@@ -45,44 +49,105 @@
 				}
 			},
 			initFormSubmitFocusAndMouseOverEvents: function (base, formId, formSubmitElm) {
-				var scope = this, addEvent = base.AddEvent;
-				if (formId in scope.formSubmitElms) return;
-				scope.formSubmitElms[formId] = true;
-				addEvent(formSubmitElm, 'mouseover', function (e) {
+				var scope = this, 
+					addEvent = base.AddEvent,
+					formSubmitElmName = formSubmitElm['name'],
+					firstTimeForForm = false;
+				if (!(formId in scope.formSubmitElmsInitialized)) {
+					firstTimeForForm = true;
+					scope.formSubmitElmsInitialized[formId] = {};
+				}
+				if (!(formSubmitElmName in scope.formSubmitElmsInitialized[formId])) {
+					scope.formSubmitElmsInitialized[formId][formSubmitElmName] = true;
+					addEvent(formSubmitElm, 'mouseover', function (e) {
+						scope.clearCustomValidityForAllFormCheckboxGroups(formId);
+					}, true);
+					addEvent(formSubmitElm, 'focus', function (e) {
+						scope.clearCustomValidityForAllFormCheckboxGroups(formId);
+					}, true);
+				}
+				if (!firstTimeForForm) return;
+				// form submit init only once
+				addEvent(base.Form, 'submit', function (e) {
 					scope.clearCustomValidityForAllFormCheckboxGroups(formId);
-				}, true);
-				addEvent(formSubmitElm, 'focus', function (e) {
-					scope.clearCustomValidityForAllFormCheckboxGroups(formId);
-				}, true);
+					if (!scope.formSubmitHandler(formId)) e['preventDefault']();
+					//e['preventDefault']();
+				});
+			},
+			formSubmitHandler: function (formId) {
+				var scope = this,
+					fieldGroupScopes = [], 
+					fieldCollection = [],
+					fieldGroupScope = {},
+					firstCheckbox = {},
+					result = true;
+				if (formId in scope.fieldGroupScopes) {
+					fieldGroupScopes = scope.fieldGroupScopes[formId];
+					for (var i = 0, l = fieldGroupScopes.length; i < l; i += 1) {
+						fieldGroupScope = fieldGroupScopes[i];
+						fieldCollection = fieldGroupScope.fieldCollection;
+						firstCheckbox = fieldCollection[0];
+						if (!fieldGroupScope.fieldChangeHandler(
+							-1, firstCheckbox, !!firstCheckbox['setCustomValidity'])
+						) result = false;
+					}
+				}
+				//console.log(result);
+				return result;
 			}
 		},
 		initStaticsIfNecessary: function () {
-			var self = MvcCoreForm['CheckboxGroup'];
-			this._self = self;
+			var scope = this,
+				statics = scope.statics,
+				self = MvcCoreForm['CheckboxGroup'];
+			scope._self = self;
 			if (typeof (self.initialized) == 'boolean' && self.initialized) return;
-			for (var key in this.statics) {
-				self[key] = this.statics[key];
-			};
+			for (var key in statics) 
+				self[key] = statics[key];
 			self.initialized = true;
+			
 		},
 		'Init': function (base) {
-			var form = base.Form;
-			this.base = base;
-			this.fieldCollection = form[this['Name']];
-			this._self.addFieldCollection(form['id'], this.fieldCollection);
-			this.initFormSubmitElm();
-			this._self.initFormSubmitFocusAndMouseOverEvents(base, form['id'], this.formSubmitElm);
-			this.initAllFormCheckboxGroups();
-			this.initFieldCollectionChangeEvents();
+			var form = base.Form,
+				formId = form['id'],
+				scope = this;
+			scope.base = base;
+			scope.fieldCollection = form[scope['Name']];
+			scope._self.addFieldGroup(formId, scope);
+			scope.initFormSubmitElms();
+			for (var i = 0, l = scope.formSubmitElms['length']; i < l; i += 1)
+				scope._self.initFormSubmitFocusAndMouseOverEvents(base, formId, scope.formSubmitElms[i]);
+			scope.initAllFormCheckboxGroups();
+			scope.initFieldCollectionChangeEvents(formId);
 		},
-		initFormSubmitElm: function () {
-			var scope = this;
-			this.base.Each(this.base.Form, function (i, control) {
-				if (control['type'] == 'submit') {
-					scope.formSubmitElm = control;
-					return false;
-				}
+		initFormSubmitElms: function () {
+			var scope = this,
+				getAttr = scope.base.GetAttr,
+				customResult = '',
+				rawFormSubmitElms = [],
+				formSubmitElms = [],
+				index = 0, length = 0;
+			scope.base.Each(scope.base.Form, function (i, control) {
+				if (control['type'] == 'submit') 
+					rawFormSubmitElms.push({
+						control: control,
+						result: getAttr(control, 'data-result')
+					});
 			});
+			rawFormSubmitElms.sort(scope.initFormSubmitElmsSort);
+			for (length = rawFormSubmitElms['length']; index < length; index += 1) 
+				formSubmitElms.push(rawFormSubmitElms[index].control);
+			scope.formSubmitElms = formSubmitElms;
+		},
+		initFormSubmitElmsSort: function (a, b) {
+			var aresult = a === null ? -1 : parseInt(a, 10),
+				bresult = b === null ? -1 : parseInt(b, 10);
+			if (aresult < bresult) {
+				return -1;
+			} else if (a.result > b.result) {
+				return 1;
+			}
+			return 0;
 		},
 		initAllFormCheckboxGroups: function () {
 			var scope = this,
@@ -102,73 +167,109 @@
 				}
 			};
 		},
-		initFieldCollectionChangeEvents: function () {
-			var scope = this;
-			this.base.Each(this.fieldCollection, function (i, field) {
-				var bubblesSupported = !!field['setCustomValidity'];
-				if (field['checked']) scope.selectionCount += 1;
+		initFieldCollectionChangeEvents: function (formId) {
+			var scope = this, 
+				bubblesSupported = !!scope.fieldCollection[0]['setCustomValidity'];
+			scope.base.Each(scope.fieldCollection, function (i, field) {
+				if (field['checked']) 
+					scope.selectionCount += 1;
 				scope.base.AddEvent(field, 'change', function (e) {
-					scope.fieldChangeHandler(e, i, field, bubblesSupported);
+					var result = scope.fieldChangeHandler(i, field, bubblesSupported);
+					if (!result) e['preventDefault']();
 				});
 			});
+			// run first check on first checkbox:
+			scope.fieldChangeHandler(-1, scope.fieldCollection[0], bubblesSupported);
 		},
-		fieldChangeHandler: function (e, i, control, bubblesSupported) {
-			this._result = undefined;
-			this.errorMsg = '';
-			this.selectionCount += control['checked'] ? 1 : -1;
-			this.fieldChangeHandlerManager(e, control);
-			if (bubblesSupported && this.errorMsg) {
-				control['setCustomValidity'](this.errorMsg);
-			}
-			return this._result;
+		fieldChangeHandler: function (i, control, bubblesSupported) {
+			var scope = this;
+			if (i > -1) scope.fieldChangeHandlerSelectionCount(control);
+			return scope.fieldChangeHandlerManager(control, bubblesSupported);
 		},
-		fieldChangeHandlerManager: function (e, control) {
+		fieldChangeHandlerSelectionCount: function (control) {
+			var scope = this, 
+				lengthStr = 'length';
+			scope.selectionCount += control['checked'] ? 1 : -1;
+			if (scope.selectionCount < 0) 
+				scope.selectionCount = 0;
+			if (scope.selectionCount > scope.fieldCollection[lengthStr]) 
+				scope.selectionCount = scope.fieldCollection[lengthStr];
+		},
+		fieldChangeHandlerManager: function (control, bubblesSupported) {
 			var scope = this,
 				reqStr = 'required',
+				errorMsg = '',
+				result = true,
+				required = scope._required,
 				base = scope.base,
 				setAttr = base.SetAttr,
-				removeAttr = base.RemoveAttr;
-			if (scope._required && scope.minSelectedOptsCnt === 0) {
-				// field is required
-				setAttr(scope.fieldCollection[0], reqStr, reqStr);
-			} else if (scope.selectionCount < scope.minSelectedOptsCnt && scope.minSelectedOptsCnt > 0) {
-				// under minimum
-				setAttr(scope.fieldCollection[0], reqStr, reqStr);
-				scope.errorMsg = scope.errorMsgMin;
+				removeAttr = base.RemoveAttr,
+				firstControl = scope.fieldCollection[0];
+			if (required && !scope.selectionCount && !scope.minSelectedOptsCnt) {
+				//console.log("required",scope.selectionCount,scope.minSelectedOptsCnt);
+				setAttr(firstControl, reqStr, reqStr);
+				errorMsg = scope.errorMsgRequired;
+				result = false;
+			} else if (
+				(required && scope.selectionCount < scope.minSelectedOptsCnt) || 
+				(!required && scope.selectionCount < scope.minSelectedOptsCnt && scope.minSelectedOptsCnt > 0)
+			) {
+				//console.log((required ? "required, ":"")+"under minimum",scope.selectionCount,scope.minSelectedOptsCnt);
+				setAttr(firstControl, reqStr, reqStr);
+				errorMsg = scope.errorMsgMin;
+				result = false;
 			} else if (scope.selectionCount === scope.maxSelectedOptsCnt && scope.maxSelectedOptsCnt > 0) {
-				// maximum reached
+				//console.log((required ? "required, ":"")+"maximum reached", scope.selectionCount, scope.maxSelectedOptsCnt);
 				scope.addOrRemoveMaxSelectedOptsClass(true);
 			} else if (scope.selectionCount > scope.maxSelectedOptsCnt && scope.maxSelectedOptsCnt > 0) {
-				// over maxmimum
-				scope.fieldChangeHandlerOverMaxmimum(e, control, reqStr);
-			} else {
+				//console.log((required ? "required, ":"")+"over maxmimum", scope.selectionCount, scope.maxSelectedOptsCnt);
+				errorMsg = scope.errorMsgMax;
+				result = false;
+				scope.fieldChangeHandlerOverMaxmimum(control, reqStr, bubblesSupported, errorMsg);
+			}/* else {
+				console.log((required ? "required, ":"")+"all conditions reached",scope.selectionCount,scope.minSelectedOptsCnt);
+			}*/
+			//console.log([result, bubblesSupported, errorMsg, control]);
+			if (bubblesSupported) 
+				firstControl['setCustomValidity'](errorMsg);
+			if (result) {
 				scope.addOrRemoveMaxSelectedOptsClass(false);
-				scope.base.Each(scope.fieldCollection, function (i, field) {
+				base.Each(scope.fieldCollection, function (i, field) {
 					removeAttr(field, reqStr);
+					if (bubblesSupported) firstControl['setCustomValidity']('');
 				});
 			}
+			return result;
 		},
-		fieldChangeHandlerOverMaxmimum: function (e, control, reqStr) {
+		fieldChangeHandlerOverMaxmimum: function (control, reqStr, bubblesSupported, errorMsg) {
 			var scope = this,
+				setCustomValidityStr = 'setCustomValidity',
 				base = scope.base,
 				setAttr = base.SetAttr,
 				removeAttr = base.RemoveAttr;
 			scope.addOrRemoveMaxSelectedOptsClass(true);
-			scope.errorMsg = scope.errorMsgMax;
-			setAttr(control, reqStr, reqStr);
-			control['checked'] = false;
+			if (control) {
+				setAttr(control, reqStr, reqStr);
+				control['checked'] = false;
+			}
 			scope.selectionCount -= 1;
 			scope._self.clearCustomValidityForAllFormCheckboxGroups(base.Form['id']);
-
-			scope.formSubmitElm['click']();
+			if (bubblesSupported) 
+				control[setCustomValidityStr](errorMsg);
+			if (scope.formSubmitElms['length'] > 0)
+				scope.formSubmitElms[0]['click']();
 			setTimeout(function () {
-				scope.base.Each(scope.fieldCollection, function (i, item) {
+				base.Each(scope.fieldCollection, function (i, item) {
 					removeAttr(item, reqStr);
 				});
 			}, 1);
-
-			e['preventDefault']();
-			scope._result = false;
+			setTimeout(function () {
+				if (bubblesSupported) {
+					scope.fieldCollection[0][setCustomValidityStr]('');
+					control[setCustomValidityStr]('');
+					//console.log(scope);
+				}
+			}, 5000);
 		},
 		addOrRemoveMaxSelectedOptsClass: function (addCls) {
 			var scope = this,

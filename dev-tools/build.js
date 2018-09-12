@@ -14,6 +14,14 @@ var fieldsSourceDir = '../src/fields/';
 var baseTargetFile = '../../ext-form/src/MvcCore/Ext/Forms/assets/mvccore-form.js';
 var fieldsTargetDir = '../../ext-form/src/MvcCore/Ext/Forms/assets/fields/';
 
+var dirname = __dirname.replace(/\\/g, '/');
+var projectDirName = '/mvccore-ext-form-js/dev-tools';
+var projectDirNameLastPos = dirname.lastIndexOf(projectDirName);
+if (projectDirNameLastPos > -1 && projectDirNameLastPos === dirname.length - projectDirName.length) {
+	baseTargetFile = '../../mvccore-form.js';
+	fieldsTargetDir = '../../fields/';
+}
+
 // for development:
 var advancedOptimizations = true;
 var prettyPrint = false;
@@ -24,7 +32,7 @@ var prettyPrint = false;
 
 // get java path stored by install script
 var javaPath = fs.readFileSync(
-	__dirname + path.sep + 'bin' + path.sep + 'java-home.json', 
+	dirname + path.sep + 'bin' + path.sep + 'java-home.json', 
 	{encoding: 'utf-8', flag: 'r'}
 ).toString().trim('"');
 
@@ -86,7 +94,7 @@ fs.writeFileSync(tmpSrcFile, content);
 console.log("Source files completed into single big source.");
 
 // compile tmp source file into tmp minified file 'tmp.min.js':
-var currentDir = __dirname.replace(/\\/g, '/') + '/';
+var currentDir = dirname + '/';
 var cmd = "cd \"%javaPath%\"\njava -jar bin/compiler/compiler.jar --compilation_level %optimalizationMode% --env BROWSER --formatting PRETTY_PRINT --js \"%inputFile%\" --hide_warnings_for \"%inputFile%\" --js_output_file \"%outputFile%\" --output_wrapper \"%output%\"";
 cmd = cmd
 	.replace(/%optimalizationMode%/g, advancedOptimizations ? 'ADVANCED_OPTIMIZATIONS' : 'SIMPLE_OPTIMIZATIONS')
@@ -118,7 +126,7 @@ if (isWin) {
 	compileCmdFileName = 'compile.sh';
 }
 
-compileCmdFullPath = __dirname + path.sep + compileCmdFileName;
+compileCmdFullPath = dirname + path.sep + compileCmdFileName;
 fs.writeFileSync(compileCmdFullPath, cmd);
 execSync(compileCmdFileName, opts);
 
@@ -188,6 +196,8 @@ fields.sort(function(a, b){return a.index - b.index});
 var currentFileContent = '';
 var nextIndex = 0;
 var targetFilePath = '';
+var targetFilePathResolved = '';
+var parentParentDir = path.resolve(__dirname + '/../..');
 for (var i = 0, l = fields.length; i < l; i += 1) {
 	field = fields[i];
 	nextIndex = (typeof(fields[i + 1]) != 'undefined') 
@@ -200,7 +210,9 @@ for (var i = 0, l = fields.length; i < l; i += 1) {
 		fs.unlinkSync(targetFilePath);
 	}
 	fs.writeFileSync(targetFilePath, currentFileContent + ';');
-	console.log("Result file: '" + path.resolve(targetFilePath) + "' readed back and saved separately.");
+	targetFilePathResolved = path.resolve(targetFilePath);
+	targetFilePathResolved = '../..' + targetFilePathResolved.substr(parentParentDir.length).replace(/\\/g, '/');
+	console.log("Result file: '" + targetFilePathResolved + "' readed back and saved separately.");
 };
 
 // remove temporary files:

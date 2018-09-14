@@ -19,7 +19,8 @@ if (download) {
 	);
 
 	download(
-		'http://dl.google.com/closure-compiler/compiler-latest.zip', 
+		//'http://dl.google.com/closure-compiler/compiler-latest.zip', 
+		'https://dl.google.com/closure-compiler/compiler-20161201.zip', 
 		'dev-tools/bin/compiler',
 		{extract: true}
 	).then((emptyObj, require, module, file, dir) => {
@@ -33,11 +34,15 @@ if (download) {
 			dirItemFullPath = compillerDirFullPath + path.sep + dirItems[i];
 			dirItemExt = path.extname(dirItems[i]).toLowerCase();
 			if (dirItemExt == '.jar') {
-				var renameResult = fs.renameSync(dirItemFullPath, compillerDirFullPath + path.sep + 'compiler.jar');
+				if (path.basename(dirItemFullPath) != 'compiler.jar') {
+					var renameResult = fs.renameSync(dirItemFullPath, compillerDirFullPath + path.sep + 'compiler.jar');
+				}
 			} else {
 				try {
 					fs.unlinkSync(dirItemFullPath);
-				} catch (e) {}
+				} catch (e) {
+					console.log(e);
+				}
 			}
 		}
 		
@@ -51,7 +56,8 @@ if (download) {
 			if (err) {
 				console.log(
 					'Java path not found. Please add java path manualy as string into:' + "\n" + 
-					"\t" + '"' + __dirname + '/dev-tools/bin/java-home.json' + '"',
+					"\t" + '"' + __dirname + '/dev-tools/bin/java-home.json' + '"' + "\n"
+					" as: \"/bin\"\n",
 					err
 				);
 			} else {

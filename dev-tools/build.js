@@ -95,7 +95,7 @@ console.log("Source files completed into single big source.");
 
 // compile tmp source file into tmp minified file 'tmp.min.js':
 var currentDir = dirname + '/';
-var cmd = "cd \"%javaPath%\"\njava -jar bin/compiler/compiler.jar --compilation_level %optimalizationMode% --env BROWSER --formatting PRETTY_PRINT --js \"%inputFile%\" --hide_warnings_for \"%inputFile%\" --js_output_file \"%outputFile%\" --output_wrapper \"%output%\"";
+var cmd = "cd \"%javaPath%\"\njava -jar bin/compiler/compiler.jar --compilation_level %optimalizationMode% --env BROWSER --formatting PRETTY_PRINT --js \"%inputFile%\" --hide_warnings_for \"%inputFile%\" --js_output_file \"%outputFile%\" --output_wrapper \"%output%\"\necho \"ok\"";
 cmd = cmd
 	.replace(/%optimalizationMode%/g, advancedOptimizations ? 'ADVANCED_OPTIMIZATIONS' : 'SIMPLE_OPTIMIZATIONS')
 	.replace(/%inputFile%/g, currentDir + tmpSrcFile)
@@ -109,7 +109,7 @@ var opts = {
 	//shell: '', // Shell to execute the command with (Default: '/bin/sh' on UNIX, 'cmd.exe' on Windows, The shell should understand the -c switch on UNIX or /s /c on Windows. On Windows, command line parsing should be compatible with cmd.exe.)
 	//uid: 0, // Sets the user identity of the process. (See setuid(2).)
 	//gid: 0, // Sets the group identity of the process. (See setgid(2).)
-	//timeout: undefined, // In milliseconds the maximum amount of time the process is allowed to run. (Default: undefined)
+	//timeout: 30000, // In milliseconds the maximum amount of time the process is allowed to run. (Default: undefined)
 	//killSignal: 'SIGTERM', // The signal value to be used when the spawned process will be killed. (Default: 'SIGTERM')
 	//maxBuffer: 0 // largest amount of data (in bytes) allowed on stdout or stderr - if exceeded child process is killed encoding
 };
@@ -128,9 +128,16 @@ if (isWin) {
 
 compileCmdFullPath = dirname + path.sep + compileCmdFileName;
 fs.writeFileSync(compileCmdFullPath, cmd);
-execSync(compileCmdFileName, opts);
-
-console.log("Single big source file minimalized into single result file.");
+try {
+	execSync(
+		(!isWin ? '/bin/sh ' : '') + compileCmdFileName, 
+		opts
+	);
+	console.log("Single big source file minimalized into single result file.");
+} catch (e) {
+	console.log("Buffer: " + e.stderr.toString('utf8'));
+	process.exit();
+}
 
 fs.unlinkSync(compileCmdFileName);	
 

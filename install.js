@@ -56,10 +56,15 @@ if (download) {
 			if (err) {
 				console.log(
 					'Java path not found. Please add java path manualy as string into:' + "\n" + 
-					"\t" + '"' + __dirname + '/dev-tools/bin/java-home.json' + '"' + "\n"
+					"\t" + '"' + __dirname + '/dev-tools/bin/java-home.json' + '"' + "\n" +
 					" as: \"/bin\"\n",
 					err
 				);
+				if (process.platform.toLowerCase().indexOf('linux') > -1) {
+					fs.writeFileSync(__dirname + '/dev-tools/bin/java-home.json', '"/bin"/* set java path to proper value and remove this comment */');
+				} else if (process.platform.toLowerCase().indexOf('win') > -1) {
+					fs.writeFileSync(__dirname + '/dev-tools/bin/java-home.json', '"C:\\Program Files\\Java\\jdk1.8.0_45"/* set java path to proper value and remove this comment */');
+				}
 			} else {
 				console.log(
 					'Java path found and stored in:' + "\n" + 

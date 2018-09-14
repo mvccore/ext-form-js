@@ -67,5 +67,5 @@ build.sh
 ```
 
 ### Configuration
-- open file "node_modules/ext-form-js/dev-tools/build.js"
+- open file "mvccore-ext-form-js/dev-tools/build.js"
 - edit lines 14 and 15 to change compiled javascript files destination

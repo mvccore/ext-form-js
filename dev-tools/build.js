@@ -34,7 +34,10 @@ var prettyPrint = false;
 var javaPath = fs.readFileSync(
 	dirname + path.sep + 'bin' + path.sep + 'java-home.json', 
 	{encoding: 'utf-8', flag: 'r'}
-).toString().trim('"');
+).toString();
+var javaPathCommentPos = javaPath.indexOf('/*');
+if (javaPathCommentPos > -1) javaPath = javaPath.substr(0, javaPathCommentPos);
+javaPath = javaPath.trim('"');
 
 var tmpSrcFile = 'tmp.src.js';
 var tmpMinFile = 'tmp.min.js';

@@ -222,7 +222,7 @@
 				//console.log((required ? "required, ":"")+"maximum reached", scope.selectionCount, scope.maxSelectedOptsCnt);
 				scope.addOrRemoveMaxSelectedOptsClass(true);
 			} else if (scope.selectionCount > scope.maxSelectedOptsCnt && scope.maxSelectedOptsCnt > 0) {
-				//console.log((required ? "required, ":"")+"over maxmimum", scope.selectionCount, scope.maxSelectedOptsCnt);
+				//console.log((required ? "required, ":"")+"over maximum", scope.selectionCount, scope.maxSelectedOptsCnt);
 				errorMsg = scope.errorMsgMax;
 				result = false;
 				scope.fieldChangeHandlerOverMaxmimum(control, reqStr, bubblesSupported, errorMsg);
@@ -289,7 +289,7 @@
 		triggerEvent: function (elm, type) {
 			if (document.createEvent) {
 				event = document.createEvent("HTMLEvents");
-				event.initEvent(type, true, true); // type, bubbles, cancelable
+				event.initEvent(type, true, true); // type, bubbles, cancel-able
 				return elm.dispatchEvent(event);
 			} else {
 				event = document.createEventObject();

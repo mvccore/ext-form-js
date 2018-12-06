@@ -10,9 +10,10 @@ Custom javascripts are compiled by **Google Closure Compiller** with advanced co
 
 ## Instalation
 Go to directory, where you want to place and add to base MvcCore form javascript files you custom javascript support code and run:
+
 #### Windows
 ```cmd
-:: create new mpty directory "mvccore-ext-form-js"
+:: create new empty directory "mvccore-ext-form-js"
 mkdir mvccore-ext-form-js
 :: clone this repository into newly created folder
 git clone https://github.com/mvccore/ext-form-js mvccore-ext-form-js
@@ -26,12 +27,11 @@ rmdir /S /Q .git
 call npm update
 :: call this node package install script
 call node install.js
-:: go to start parent directory
-cd ../..
+:: follow instructions on the screen
 ```
 #### Linux
 ```shell
-# create new mpty directory "mvccore-ext-form-js"
+# create new empty directory "mvccore-ext-form-js"
 mkdir mvccore-ext-form-js
 # clone this repository into newly created folder
 git clone https://github.com/mvccore/ext-form-js mvccore-ext-form-js
@@ -45,16 +45,17 @@ rm -r -f .git
 sh -c "npm update"
 # call this node package install script
 sh -c "node install.js"
-# go to start parent directory
-cd ../..
+# follow instructions on the screen
 ```
 
 ## Excending and custom javascript development
-- add, change or remove anything in "node_modules/ext-form-js/src/*.js"
+- add, change or remove anything in "mvccore-ext-form-js/src/*.js"
+- configure output location in "mvccore-ext-form-js/dev-tools/build.js"
 - build your new javascript files
 - configure PHP library MvcCore Form Extension to use your custom javascripts
 
 ## Building
+
 #### Windows
 ```shell
 cd mvccore-ext-form-js/dev-tools
@@ -63,7 +64,7 @@ build.cmd
 #### Linux
 ```shell
 cd mvccore-ext-form-js/dev-tools
-build.sh
+sh build.sh
 ```
 
 ### Configuration

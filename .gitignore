@@ -57,6 +57,7 @@ Temporary Items
 
 # install third party node modules
 node_modules
+package-lock.json
 
 # development third party installed tools and temp files
 dev-tools/bin/compiler/compiler.jar

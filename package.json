@@ -7,7 +7,7 @@
     "MvcCore Form javascripts",
     "MvcCore Form JS"
   ],
-  "description": "Create custom handling javascripts for any build-in or custom control in PHP forms library MvcCore Form extension.",
+  "description": "MvcCore - Extension - Form - Javascripts - create custom handling javascripts for any build-in or custom control in PHP forms library MvcCore Form extension.",
   "homepage": "https://github.com/mvccore/ext-form-js",
   "repository": {
     "type": "git",

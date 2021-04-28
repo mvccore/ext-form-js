@@ -99,8 +99,7 @@ console.log("Source files completed into single big source.");
 // compile tmp source file into tmp minified file 'tmp.min.js':
 var currentDir = dirname + '/';
 var cmd = "cd \"%javaPath%\"\njava -jar bin/compiler/compiler.jar --compilation_level %optimalizationMode% --env BROWSER --formatting PRETTY_PRINT --js \"%inputFile%\" --hide_warnings_for \"%inputFile%\" --js_output_file \"%outputFile%\" --output_wrapper \"%output%\"\necho \"ok\"";
-cmd = cmd
-	.replace(/%optimalizationMode%/g, advancedOptimizations ? 'ADVANCED_OPTIMIZATIONS' : 'SIMPLE_OPTIMIZATIONS')
+cmd = cmd.replace(/%optimalizationMode%/g, advancedOptimizations ? 'ADVANCED_OPTIMIZATIONS' : 'SIMPLE_OPTIMIZATIONS')
 	.replace(/%inputFile%/g, currentDir + tmpSrcFile)
 	.replace(/%outputFile%/g, currentDir + tmpMinFile);
 if (!prettyPrint) cmd = cmd.replace(' --formatting PRETTY_PRINT', '');

@@ -34,7 +34,7 @@ window['MvcCoreForm'] = (function () {
 					}
 				}
 			});
-			// do not use addEventListener - the it is not possible to get listener back as:
+			// do not use addEventListener - it is not possible to get listener back as:
 			// var originalEvent = myForm.onsubmit;
 			// myform.onsubmit = function (e) {
 			//		// any custom code here...

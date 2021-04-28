@@ -13,9 +13,11 @@
 		'Init': function (base) {
 			this.base = base;
 			this.field = base.Form[this['Name']];
+			if (this.field['getAttribute']('multiple') == null) return;
 			this.initCreateAndSetUpNewElements();
 			this.initStepHandlersIfNecessary();
 			this.initChangeEvents();
+			this.initResetEvents();
 		},
 		initCreateAndSetUpNewElements: function () {
 			var scope = this,
@@ -28,10 +30,14 @@
 				_setAttr = base.SetAttr,
 				_removeAttr = base.RemoveAttr,
 				name = '',
+				spanStr = 'span',
+				idStr = 'id',
+				classNameStr = 'className',
+				nameStr = 'name',
 				values = [];
 
-			var contElm = _createElm('div');
-			var infoElm = _createElm('span');
+			var contElm = _createElm(spanStr);
+			var infoElm = _createElm(spanStr);
 			var firstElm = field['cloneNode']();
 			_addCls(field, 'range-multiple');
 			var rawValues = _getAttr(field, 'data-value');
@@ -45,17 +51,17 @@
 			};
 
 			_removeAttr(firstElm, 'multiple');
-			_removeAttr(firstElm, 'id');
+			_removeAttr(firstElm, idStr);
 			_setAttr(firstElm, 'value', values[0]);
 			
-			name = firstElm['name'];
-			firstElm['name'] = name.indexOf('[]') > -1 ? name : name + '[]';
+			name = firstElm[nameStr];
+			firstElm[nameStr] = name.indexOf('[]') > -1 ? name : name + '[]';
 			var secondElm = firstElm['cloneNode']();
 			_setAttr(secondElm, 'value', values[1]);
 			_addCls(firstElm, 'first');
 			_addCls(secondElm, 'second');
-			_setAttr(contElm, 'id', field['id']);
-			contElm['className'] = field['className'];
+			_setAttr(contElm, idStr, field[idStr]);
+			contElm[classNameStr] = field[classNameStr];
 
 			infoElm = _append(contElm, infoElm);
 			firstElm = _append(contElm, firstElm);
@@ -70,15 +76,16 @@
 		initStepHandlersIfNecessary: function () {
 			var scope = this,
 				first = scope.firstElm,
-				second = scope.secondElm;
+				second = scope.secondElm,
+				valueStr = 'value';
 			if (!('stepDown' in first)) {
 				first.stepDown = function (step) {
-					first['value'] = first['value'] - step;
+					first[valueStr] = first[valueStr] - step;
 				}
 			};
 			if (!('stepUp' in second)) {
 				second.stepUp = function (step) {
-					second['value'] = second['value'] + step;
+					second[valueStr] = second[valueStr] + step;
 				}
 			};
 		},
@@ -86,14 +93,15 @@
 			var scope = this,
 				first = scope.firstElm,
 				second = scope.secondElm,
-				int = scope._parseInt,
+				floatVal = scope._parseFloat,
 				step = scope.getInputStep,
 				firstStep = step(first),
-				secondStep = step(second);
+				secondStep = step(second),
+				valueStr = 'value';
 			scope.addChangeEvent(first, function (e) {
 				var cnt = 0,
-					firstValPlusStep = int(first['value']) + firstStep;
-				while (firstValPlusStep > int(second['value'])) {
+					firstValPlusStep = floatVal(first[valueStr]) + firstStep;
+				while (firstValPlusStep > floatVal(second[valueStr])) {
 					second.stepUp();
 					cnt += 1;
 					if (cnt > 100) break;
@@ -102,8 +110,8 @@
 			});
 			scope.addChangeEvent(second, function (e) {
 				var cnt = 0,
-					secondValMinusStep = int(second['value']) - secondStep;
-				while (secondValMinusStep < int(first['value'])) {
+					secondValMinusStep = floatVal(second[valueStr]) - secondStep;
+				while (secondValMinusStep < floatVal(first[valueStr])) {
 					first.stepDown();
 					cnt += 1;
 					if (cnt > 100) break;
@@ -112,32 +120,58 @@
 			});
 			scope.setUpInfo();
 		},
+		initResetEvents: function () {
+			var scope = this,
+				base = scope.base,
+				valueStr = 'value',
+				rawOrigValues = scope.field['getAttribute']('data-value'),
+				min = '', max = '',
+				origValues = ['', ''];
+			if (rawOrigValues == null || rawOrigValues === '') {
+				min = scope.field['getAttribute']('min');
+				max = scope.field['getAttribute']('max');
+				origValues = [
+					min != null && min !== '' ? min : scope.firstElm.value,
+					max != null && max !== '' ? max : scope.secondElm.value
+				];
+			} else {
+				origValues = rawOrigValues.split(',');
+			}
+			base.AddEvent(base.Form, 'reset', function () {
+				scope.firstElm[valueStr] = origValues[0];
+				scope.secondElm[valueStr] = origValues[1];
+				scope.setUpInfo();
+			});
+		},
 		addChangeEvent: function (elm, handler) {
 			this.base.AddEvent(elm, this.base.OldId ? 'change' : 'input', handler);
 		},
 		setUpInfo: function () {
-			var scope = this;
+			var scope = this,
+				valueStr = 'value',
+				percentageStr = '%';
 			scope.infoElm['innerHTML'] = scope.infoTmpl
-				.replace('%', scope.firstElm['value'])
-				.replace('%', scope.secondElm['value']);
+				.replace(percentageStr, scope.firstElm[valueStr])
+				.replace(percentageStr, scope.secondElm[valueStr]);
 		},
-		_parseInt: function (value) {
-			return parseInt(value, 10);
+		_parseFloat: function (value) {
+			return parseFloat(value);
 		},
 		getInputStep: function (input) {
 			var rawStep = input['step'].toString(),
 				rawValue = '',
 				dotPos = -1,
-				result = 1;
-			if (rawStep['length'] > 0) {
+				result = 1,
+				lengthStr = 'length';
+			if (rawStep[lengthStr] > 0) {
 				result = parseInt(rawStep, 10);
 			} else {
-				rawValue = input['value'].toString();
-				if (rawValue['length'] > 0) {
+				rawValue = input[lengthStr].toString();
+				if (rawValue[lengthStr] > 0) {
 					dotPos = rawValue.lastIndexOf('.');
 					if (dotPos > -1) {
 						rawValue = rawValue.substr(dotPos + 1);
-						if (rawValue['length'] > 0) {
+						if (rawValue[lengthStr] > 0) {
 							result = parseInt(rawValue, 10) / 10;
 						}
 					}

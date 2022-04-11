@@ -1,6 +1,6 @@
 {
-  "name": "mvccore-ext-form-js",
-  "version": "5.0.0",
+  "name": "@mvccore/ext-form-js",
+  "version": "5.0.1",
   "keywords": [
     "MvcCore Form javascripts - PHP forms library",
     "MvcCore Form js - PHP forms library",
@@ -13,7 +13,10 @@
     "type": "git",
     "url": "https://github.com/mvccore/ext-form-js.git"
   },
-  "license": "BSD-3-Clause",
+  "license": "BSD-3",
+  "publishConfig": {
+    "access": "public"
+  },
   "author": {
     "name": "Tom Flídr",
     "email": "tomflidr@gmail.com",

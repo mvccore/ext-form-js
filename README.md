@@ -1,12 +1,12 @@
 # MvcCore - Extension - Form - Javascripts
 
-[![Latest Stable Version](https://img.shields.io/badge/Stable-v4.2.1-brightgreen.svg?style=plastic)](https://github.com/mvccore/ext-form-js/releases)
+[![Latest Stable Version](https://img.shields.io/badge/Stable-v5.0.1-brightgreen.svg?style=plastic)](https://github.com/mvccore/ext-form-js/releases)
 [![License](https://img.shields.io/badge/License-BSD%203-brightgreen.svg?style=plastic)](https://mvccore.github.io/docs/mvccore/5.0.0/LICENSE.md)
 [![Google Closure Build](https://img.shields.io/badge/Google%20Closure%20Build-passing-brightgreen.svg?style=plastic)](https://developers.google.com/closure/compiler/)
 
 Node.JS builder to compile custom javascripts for PHP library MvcCore Form Extension ([mvccore/ext-form](https://github.com/mvccore/ext-form)), which serves web forms and much more.
 
-Javascript files in current stable version `4.2` are compatible with `MvcCore Form Extension` with versions `4.x` and `5.x`.
+Javascript files in current stable version `5.0` are compatible with `MvcCore Form Extension` with versions `4.x` and `5.x`.
 
 Custom javascripts are compiled by **Google Closure Compiller** with advanced compilation.
 

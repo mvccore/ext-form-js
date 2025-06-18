@@ -69,3 +69,4 @@ dev-tools/bin/tmp.min.js
 
 *.phpproj
 *.phpproj.user
+.vs
